@@ -12,7 +12,11 @@ router.route('/board/list')
     .post(addBoard);
 
 router.route('/board/list/:board_id')
-    .get(getBoardDetail);
+    .get(getBoardDetail)
+    .post(addJoinBoard);
+
+router.route('/board/main/:user_id')
+    .get(getBoardInterestList);
 
 function getBoardList(req, res) {
 
@@ -66,6 +70,41 @@ function addBoard(req, res) {
         const max = fields['max'];
 
         Boards.saveBoard(user_id, type, title, promote, start_time, end_time, place, need, other, max, (err, result)=> {
+            if (err) {
+                res.status(500).send({msg: err.message});
+                return;
+            }
+
+            res.send(result);
+        });
+    });
+}
+
+function getBoardInterestList(req, res) {
+
+    const user_id = req.params['user_id'];
+
+    Boards.sendInterestList(user_id, (err, result)=> {
+        if (err) {
+            res.status(500).send({msg: err.message});
+            return;
+        }
+
+        res.send(result);
+    });
+}
+
+function addJoinBoard(req, res) {
+
+    var form = new formidable.IncomingForm();
+    form.encoding = 'utf-8';
+    form.multiples = true;
+    form.keepExtensions = true;
+    form.parse(req, function (error, fields) {
+        const board_id = req.params['board_id'];
+        const user_id = fields['user_id'];
+
+        Boards.saveJoin(user_id, board_id, (err, result)=> {
             if (err) {
                 res.status(500).send({msg: err.message});
                 return;

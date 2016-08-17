@@ -74,7 +74,6 @@ Boards.sendBoardDetail = (board_id, callback)=> {
 
         results = results[0];
         var register = results['register'];
-        delete results['register'];
         delete results['_id'];
 
         var man_cnt = results['participants'].length;
@@ -119,10 +118,102 @@ Boards.saveBoard = (user_id, type, title, promote, start_time, end_time, place, 
             callback(null, {message: 'Fail'});
         }
 
-        console.log(results);
-
         callback(null, {message: "success"});
     });
 }
+
+Boards.sendInterestList = (user_id, callback)=> {
+    db.collection('users').find({uuid: user_id}).toArray((err, result)=> {
+
+        if (err) {
+            callback(null, {message: "Fail"});
+            return;
+        }
+
+        var interest_arr = result[0]['interest'];
+
+        var arr = [];
+
+        interest_arr.forEach((item)=> {
+
+            var obj = {
+                type: item
+            };
+
+            arr.push(obj);
+        });
+
+        db.collection('boards').find({$or: arr}).toArray((err, results)=> {
+            if (err) {
+                callback(null, {message: "Fail"});
+                return;
+            }
+
+            var obj = {
+                total: results.length,
+                list: results
+            };
+
+            callback(null, obj);
+        });
+    });
+};
+
+Boards.saveJoin = (user_id, board_id, callback)=> {
+
+    db.collection('boards').find({_id: ObjectID(board_id)}).toArray((err, result)=> {
+        if (err) {
+            callback(null, {message: 'Fail'});
+            return;
+        }
+
+        var check = 0;
+        result[0]['participants'].forEach((item)=> {
+            if (item == user_id) {
+                check = 1;
+            }
+        });
+
+        var setting = {_id: ObjectID(board_id)};
+
+        if (check == 1) {
+            db.collection('boards').updateOne(setting, {$pull: {"participants": user_id}}, (err, result)=> {
+
+                if (err) {
+                    return callback(err, null);
+                }
+
+                var obj = {
+                    msg: "fail",
+                    join: 0
+                };
+
+                if (result['result']['ok'] == 1) {
+                    obj['msg'] = "success";
+                }
+
+                callback(null, obj);
+            });
+        } else {
+
+            db.collection('boards').updateOne(setting, {$push: {'participants': user_id}}, (err, result)=> {
+                if (err) {
+                    return callback(err, null);
+                }
+
+                var obj = {
+                    msg: "fail",
+                    join: 1
+                };
+
+                if (result['result']['ok'] == 1) {
+                    obj['msg'] = "success";
+                }
+
+                callback(null, obj);
+            });
+        }
+    });
+};
 
 module.exports = Boards;
