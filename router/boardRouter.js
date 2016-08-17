@@ -67,7 +67,7 @@ function addBoard(req, res) {
         const place = fields['place'];
         const need = fields['need'];
         const other = fields['other'];
-        const max = fields['max'];
+        const max = parseInt(fields['max']);
 
         Boards.saveBoard(user_id, type, title, promote, start_time, end_time, place, need, other, max, (err, result)=> {
             if (err) {

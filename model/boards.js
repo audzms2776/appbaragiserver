@@ -149,6 +149,15 @@ Boards.sendInterestList = (user_id, callback)=> {
                 return;
             }
 
+            results.forEach((item)=> {
+                item['cnt'] = item['participants'].length;
+                item['board_id'] = item['_id'];
+                delete item['_id'];
+                delete item['register'];
+                delete item['']
+                delete item['participants'];
+            });
+
             var obj = {
                 total: results.length,
                 list: results
