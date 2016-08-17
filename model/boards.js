@@ -81,8 +81,8 @@ Boards.sendBoardDetail = (board_id, callback)=> {
         results['man_cnt'] = man_cnt;
         delete results['participants'];
 
-        db.collection('users').find().toArray((error, docs)=> {
-            if(error){
+        db.collection('users').find({uuid: register}).toArray((error, docs)=> {
+            if (error) {
                 callback(null, {message: 'Error'});
                 return;
             }
@@ -97,5 +97,32 @@ Boards.sendBoardDetail = (board_id, callback)=> {
         });
     });
 };
+
+Boards.saveBoard = (user_id, type, title, promote, start_time, end_time, place, need, other, max, callback)=> {
+
+    var obj = {
+        "register": user_id,
+        "type": type,
+        "title": title,
+        "promote": promote,
+        "start_time": start_time,
+        "end_time": end_time,
+        "place": place,
+        "need": need,
+        "other": other,
+        "participants": [],
+        "max": max
+    };
+
+    db.collection('boards').insertOne(obj, (err, results)=> {
+        if (err) {
+            callback(null, {message: 'Fail'});
+        }
+
+        console.log(results);
+
+        callback(null, {message: "success"});
+    });
+}
 
 module.exports = Boards;

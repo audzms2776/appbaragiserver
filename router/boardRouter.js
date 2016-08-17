@@ -8,7 +8,8 @@ const formidable = require('formidable');
 const Boards = require('../model/boards');
 
 router.route('/board/list')
-    .get(getBoardList);
+    .get(getBoardList)
+    .post(addBoard);
 
 router.route('/board/list/:board_id')
     .get(getBoardDetail);
@@ -38,6 +39,40 @@ function getBoardDetail(req, res) {
         }
 
         res.send(result);
+    });
+}
+
+function addBoard(req, res) {
+
+    var form = new formidable.IncomingForm();
+    form.encoding = 'utf-8';
+    form.multiples = true;
+    form.keepExtensions = true;
+    form.parse(req, function (error, fields) {
+        if (error) {
+            res.status(500).send({msg: error.message});
+            return;
+        }
+
+        const user_id = fields['user_id'];
+        const type = fields['type'];
+        const title = fields['title'];
+        const promote = fields['promote'];
+        const start_time = parseInt(fields['start_time']);
+        const end_time = parseInt(fields['end_time']);
+        const place = fields['place'];
+        const need = fields['need'];
+        const other = fields['other'];
+        const max = fields['max'];
+
+        Boards.saveBoard(user_id, type, title, promote, start_time, end_time, place, need, other, max, (err, result)=> {
+            if (err) {
+                res.status(500).send({msg: err.message});
+                return;
+            }
+
+            res.send(result);
+        });
     });
 }
 

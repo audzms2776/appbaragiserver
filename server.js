@@ -3,9 +3,11 @@
  */
 const express = require('express');
 const app = express();
+const bodyParser = require('body-parser');
 
 app.use(express.static('.'));
 app.use(express.static('./public'));
+app.use(bodyParser.urlencoded({extended: true}));
 
 const boardRouter = require('./router/boardRouter');
 
