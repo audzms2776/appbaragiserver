@@ -7,7 +7,7 @@ var ObjectID = require('mongodb').ObjectID;
 const async = require('async');
 var db;
 
-function Users() {
+function Boards() {
 
 }
 
@@ -17,11 +17,10 @@ MongoClient.connect(url, function (err, database) {
         return;
     }
 
-    // console.log('MongoDB 연결 성공');
     db = database;
 });
 
-Users.sendBoardList = (type, callback)=> {
+Boards.sendBoardList = (type, callback)=> {
 
     db.collection('boards').find({type: type}).toArray((err, docs)=> {
         if (err) {
@@ -41,10 +40,12 @@ Users.sendBoardList = (type, callback)=> {
         };
 
         docs.forEach((item)=> {
+            var board_id = item['_id'];
             var promote = item['promote'];
             var max = item['max'];
             var curNum = item['participants'].length;
             var obj = {
+                board_id: board_id,
                 promote: promote,
                 max: max,
                 curNum: curNum
@@ -57,8 +58,44 @@ Users.sendBoardList = (type, callback)=> {
     });
 };
 
-Users.sendBOardDetail = (board_id, callback)=> {
+Boards.sendBoardDetail = (board_id, callback)=> {
 
+    db.collection('boards').find({_id: ObjectID(board_id)}).toArray((err, results)=> {
+
+        if (err) {
+            callback(null, {message: 'Error'});
+            return;
+        }
+
+        if (results == undefined) {
+            callback(null, {message: 'Error'});
+            return;
+        }
+
+        results = results[0];
+        var register = results['register'];
+        delete results['register'];
+        delete results['_id'];
+
+        var man_cnt = results['participants'].length;
+        results['man_cnt'] = man_cnt;
+        delete results['participants'];
+
+        db.collection('users').find().toArray((error, docs)=> {
+            if(error){
+                callback(null, {message: 'Error'});
+                return;
+            }
+
+            var name = docs[0]['name'];
+            var phone = docs[0]['phone'];
+
+            results['name'] = name;
+            results['phone'] = phone;
+
+            callback(null, results);
+        });
+    });
 };
 
-module.exports = Users;
+module.exports = Boards;
