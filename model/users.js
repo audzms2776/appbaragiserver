@@ -3,7 +3,7 @@
  */
 
 var MongoClient = require('mongodb').MongoClient;
-var url = 'mongodb://175.126.112.98:27017/appba';
+var url = 'mongodb://localhost:27017/appba';
 var ObjectID = require('mongodb').ObjectID;
 const async = require('async');
 var db;
