@@ -1,3 +1,7 @@
 # appbaragiserver
 
-앱바라기 서버 만들기 3~4시전까지는 만들자
+## 2016.06 : 전국 대학생 앱개발 챌린지본선
+#  사용기술   
+* Android
+* Node.js
+* Mongodb
